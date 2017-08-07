@@ -1,0 +1,37 @@
+{
+  "name": "vab_connection",
+  "version": "1.0.0",
+  "description": "vab connection for capvision",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/gexiaowei/vab_connection.git"
+  },
+  "keywords": [
+    "vab",
+    "cavans"
+  ],
+  "author": "gexiaowei <gandxiaowei@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gexiaowei/vab_connection/issues"
+  },
+  "homepage": "https://github.com/gexiaowei/vab_connection#readme",
+  "dependencies": {
+    "jquery": "^3.2.1"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "gulp": "^3.9.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-uglify": "^3.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
