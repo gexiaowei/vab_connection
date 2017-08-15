@@ -175,22 +175,6 @@ var ConnectionsCanvas = function () {
             }
             this.grid[index].push(new Point(toX, toY));
 
-            //test
-            this.context.fillStyle = '#993931';
-            for (var i = 1; i < this.grid[index].length; i++) {
-                this.context.beginPath();
-                var a = this.grid[index][i - 1];
-                var b = this.grid[index][i];
-                if (a.x == b.x) {
-                    this.context.rect(Math.min(a.x, b.x) - 5, Math.min(a.y, b.y), Math.abs(b.x - a.x) + 10, Math.abs(b.y - a.y));
-                } else {
-                    this.context.rect(Math.min(a.x, b.x), Math.min(a.y, b.y) - 5, Math.abs(b.x - a.x), Math.abs(b.y - a.y) + 10);
-                }
-
-                this.context.closePath();
-                this.context.fill();
-            }
-
             this.context.beginPath();
             this.context.moveTo(fromX, fromY);
             for (var _i = 1; _i < this.grid[index].length; _i++) {
@@ -229,7 +213,6 @@ var ConnectionsCanvas = function () {
                 }
 
                 var offset = $transput.offset();
-
                 line.fromX = offset.left - this.offset.left + (this._connection_creation_data.source ? 1 : 0) * $transput.outerWidth();
                 line.fromY = offset.top - this.offset.top + 0.5 * $transput.outerHeight();
 
@@ -242,6 +225,7 @@ var ConnectionsCanvas = function () {
             var _this2 = this;
 
             this.clear();
+            this.offset = this.$canvas.offset();
             if (!patch || !patch.length) {
                 return;
             }
@@ -252,7 +236,7 @@ var ConnectionsCanvas = function () {
     }, {
         key: 'resize',
         value: function resize() {
-            this.width = this.$container.outerWidth();
+            this.width = this.$container.outerWidth() || $('#introduce_panel').outerWidth();
             this.height = this.$container.outerHeight();
             this.offset = this.$canvas.offset();
             this.$canvas.attr({width: this.width, height: this.height});
@@ -351,11 +335,11 @@ var Relationship = function () {
         key: 'set_connection_creation_data_by_transput',
         value: function set_connection_creation_data_by_transput(transput) {
             var data = {id: $(event.target).data('compositionId')};
-            if (this._is_transput_element(transput)) {
+            if (Relationship._is_transput_element(transput)) {
                 this.connection_creation_data.destination = data;
             }
 
-            if (this._is_transput_process(transput)) {
+            if (Relationship._is_transput_process(transput)) {
                 this.connection_creation_data.source = data;
             }
             this.connections_canvas.connection_creation_data = this.connection_creation_data;
@@ -372,7 +356,7 @@ var Relationship = function () {
     }, {
         key: 'handler_process_mouse_down',
         value: function handler_process_mouse_down(event) {
-            if (this._is_transput(event.target)) {
+            if (Relationship._is_transput(event.target)) {
                 this.set_connection_creation_data_by_transput(event.target);
                 event.preventDefault();
                 $(document).on('mousemove', this.document_mouse_move_listener);
@@ -389,7 +373,7 @@ var Relationship = function () {
         value: function handler_document_mouse_up(event) {
             $(document).off('mousemove', this.document_mouse_move_listener);
             $(document).off('mouseup', this.document_mouse_up_listener);
-            if (this._is_transput_process(event.target) && this.connection_creation_data.destination || this._is_transput_element(event.target) && this.connection_creation_data.source) {
+            if (Relationship._is_transput_process(event.target) && this.connection_creation_data.destination || Relationship._is_transput_element(event.target) && this.connection_creation_data.source) {
                 this.set_connection_creation_data_by_transput(event.target);
                 this.patch.push(this.connection_creation_data);
             } else {
@@ -409,12 +393,12 @@ var Relationship = function () {
             this.patch.splice(patch_index, 1);
             this.connections_canvas.draw(this.patch);
         }
-    }, {
+    }], [{
         key: '_is_transput',
         value: function _is_transput(element) {
-            return this._is_transput_process(element) || this._is_transput_element(element);
+            return Relationship._is_transput_process(element) || Relationship._is_transput_element(element);
         }
-    }], [{
+    }, {
         key: '_is_transput_element',
         value: function _is_transput_element(element) {
             var $element = $(element);
