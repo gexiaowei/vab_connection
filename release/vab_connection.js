@@ -346,9 +346,9 @@ var Relationship = function () {
         }
     }, {
         key: 'add_vab',
-        value: function add_vab(data) {
+        value: function add_vab(data, x, y) {
             var vab = new VAB(data);
-            vab.position = {x: 50, y: 50};
+            vab.position = {x: x || 50, y: y || 50};
             this.vabs.push(vab);
             vab.$element.appendTo(this.$element);
             vab.$element.on('mousedown', this.process_mouse_down_listener);
