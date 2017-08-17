@@ -16,13 +16,15 @@ var livereload = require('gulp-livereload');
 
 gulp.task('build', function () {
     // app.js is your main JS file with all your module inclusions
-    return browserify({entries: './src/relationship.js', debug: true})
+    var b = browserify({entries: './src/relationship.js', debug: true});
+    b.ignore('jquery');
+    return b
         .transform("babelify", {presets: ["es2015"]})
         .bundle()
         .pipe(source('relationship.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init())
-        // .pipe(uglify())
+        .pipe(uglify())
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./dist/relationship.js'))
         .pipe(livereload());
