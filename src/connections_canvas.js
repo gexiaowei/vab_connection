@@ -64,23 +64,6 @@ class ConnectionsCanvas {
         }
         this.grid[index].push(new Point(toX, toY));
 
-        //test
-        this.context.fillStyle = '#993931';
-        for (let i = 1; i < this.grid[index].length; i++) {
-            this.context.beginPath();
-            let a = this.grid[index][i - 1];
-            let b = this.grid[index][i];
-            if (a.x == b.x) {
-                this.context.rect(Math.min(a.x, b.x) - 5, Math.min(a.y, b.y), Math.abs(b.x - a.x) + 10, Math.abs(b.y - a.y));
-            } else {
-                this.context.rect(Math.min(a.x, b.x), Math.min(a.y, b.y) - 5, Math.abs(b.x - a.x), Math.abs(b.y - a.y) + 10);
-            }
-
-            this.context.closePath();
-            this.context.fill();
-        }
-
-
         this.context.beginPath();
         this.context.moveTo(fromX, fromY);
         for (let i = 1; i < this.grid[index].length; i++) {

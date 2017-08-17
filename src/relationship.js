@@ -33,11 +33,11 @@ class Relationship {
 
     set_connection_creation_data_by_transput(transput) {
         let data = {id: $(event.target).data('compositionId')};
-        if (this._is_transput_element(transput)) {
+        if (Relationship._is_transput_element(transput)) {
             this.connection_creation_data.destination = data;
         }
 
-        if (this._is_transput_process(transput)) {
+        if (Relationship._is_transput_process(transput)) {
             this.connection_creation_data.source = data;
         }
         this.connections_canvas.connection_creation_data = this.connection_creation_data;
@@ -52,7 +52,7 @@ class Relationship {
     }
 
     handler_process_mouse_down(event) {
-        if (this._is_transput(event.target)) {
+        if (Relationship._is_transput(event.target)) {
             this.set_connection_creation_data_by_transput(event.target);
             event.preventDefault();
             $(document).on('mousemove', this.document_mouse_move_listener);
@@ -67,10 +67,13 @@ class Relationship {
     handler_document_mouse_up(event) {
         $(document).off('mousemove', this.document_mouse_move_listener);
         $(document).off('mouseup', this.document_mouse_up_listener);
-        if ((this._is_transput_process(event.target) && this.connection_creation_data.destination) || (this._is_transput_element(event.target) && this.connection_creation_data.source)) {
+        if ((Relationship._is_transput_process(event.target) && this.connection_creation_data.destination) || (Relationship._is_transput_element(event.target) && this.connection_creation_data.source)) {
             this.set_connection_creation_data_by_transput(event.target);
             this.patch.push(this.connection_creation_data);
-
+            if (this.patch_change_callback) {
+                let patch = this.patch;
+                this.patch_change_callback(patch);
+            }
         } else {
             console.log('invalidate connection');
         }
@@ -84,11 +87,24 @@ class Relationship {
 
     handler_document_patch_remove(event, patch_index) {
         this.patch.splice(patch_index, 1);
+        if (this.patch_change_callback) {
+            let patch = this.patch;
+            this.patch_change_callback(patch);
+        }
         this.connections_canvas.draw(this.patch);
     }
 
-    _is_transput(element) {
-        return this._is_transput_process(element) || this._is_transput_element(element);
+    add_patch(patch) {
+        this.patch = this.patch.concat(patch);
+        this.connections_canvas.draw(this.patch);
+    }
+
+    set_patch_change_callback(callback) {
+        this.patch_change_callback = callback;
+    }
+
+    static _is_transput(element) {
+        return Relationship._is_transput_process(element) || Relationship._is_transput_element(element);
     }
 
     static _is_transput_element(element) {

@@ -16,9 +16,10 @@ class VAB {
 
     init(data) {
         this.$element = $('<div class="vab"></div>');
-        this.$header = $('<div class="header"></div>');
+        let $header_container = $('<div class="header-container grid"><div class="element grid-cell" data-composition-id="vab#element#' + data['id'] + '">&nbsp;</div><div class="header grid-cell none"></div><div class="process grid-cell" data-composition-id="vab#process#' + data['id'] + '">&nbsp;</div></div>');
+        this.$header = $header_container.find('.header');
         this.$header.text(data['name']);
-        this.$header.appendTo(this.$element);
+        $header_container.appendTo(this.$element);
         this.$body = $('<div class="body"></div>');
         data.elements.forEach((item, index) => {
             $('<div class="composition element"></div>').text(item['name']).attr('data-composition-id', item['id']).css('top', 6 + 30 * index).appendTo(this.$body);

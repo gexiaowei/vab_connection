@@ -44,9 +44,10 @@ var VAB = function () {
             var _this = this;
 
             this.$element = $('<div class="vab"></div>');
-            this.$header = $('<div class="header"></div>');
+            var $header_container = $('<div class="header-container grid"><div class="element grid-cell" data-composition-id="vab#element#' + data['id'] + '">&nbsp;</div><div class="header grid-cell none"></div><div class="process grid-cell" data-composition-id="vab#process#' + data['id'] + '">&nbsp;</div></div>');
+            this.$header = $header_container.find('.header');
             this.$header.text(data['name']);
-            this.$header.appendTo(this.$element);
+            $header_container.appendTo(this.$element);
             this.$body = $('<div class="body"></div>');
             data.elements.forEach(function (item, index) {
                 $('<div class="composition element"></div>').text(item['name']).attr('data-composition-id', item['id']).css('top', 6 + 30 * index).appendTo(_this.$body);
@@ -177,8 +178,8 @@ var ConnectionsCanvas = function () {
 
             this.context.beginPath();
             this.context.moveTo(fromX, fromY);
-            for (var _i = 1; _i < this.grid[index].length; _i++) {
-                this.context.lineTo(this.grid[index][_i].x, this.grid[index][_i].y);
+            for (var i = 1; i < this.grid[index].length; i++) {
+                this.context.lineTo(this.grid[index][i].x, this.grid[index][i].y);
             }
 
             this.context.stroke();
@@ -213,6 +214,7 @@ var ConnectionsCanvas = function () {
                 }
 
                 var offset = $transput.offset();
+
                 line.fromX = offset.left - this.offset.left + (this._connection_creation_data.source ? 1 : 0) * $transput.outerWidth();
                 line.fromY = offset.top - this.offset.top + 0.5 * $transput.outerHeight();
 
@@ -222,24 +224,23 @@ var ConnectionsCanvas = function () {
     }, {
         key: 'draw',
         value: function draw(patch) {
-            var _this2 = this;
+            var _this = this;
 
             this.clear();
-            this.offset = this.$canvas.offset();
             if (!patch || !patch.length) {
                 return;
             }
             patch.forEach(function (connection_creation_data, index) {
-                _this2.draw_segment_line(connection_creation_data, index);
+                _this.draw_segment_line(connection_creation_data, index);
             });
         }
     }, {
         key: 'resize',
         value: function resize() {
-            this.width = this.$container.outerWidth() || $('#introduce_panel').outerWidth();
+            this.width = this.$container.outerWidth();
             this.height = this.$container.outerHeight();
             this.offset = this.$canvas.offset();
-            this.$canvas.attr({width: this.width, height: this.height});
+            this.$canvas.attr({ width: this.width, height: this.height });
         }
     }, {
         key: 'clear',
@@ -328,13 +329,13 @@ var Relationship = function () {
     _createClass(Relationship, [{
         key: 'clear_connection_creation_data',
         value: function clear_connection_creation_data() {
-            this.connection_creation_data = {source: null, destination: null};
+            this.connection_creation_data = { source: null, destination: null };
             this.connections_canvas.connection_creation_data = null;
         }
     }, {
         key: 'set_connection_creation_data_by_transput',
         value: function set_connection_creation_data_by_transput(transput) {
-            var data = {id: $(event.target).data('compositionId')};
+            var data = { id: $(event.target).data('compositionId') };
             if (Relationship._is_transput_element(transput)) {
                 this.connection_creation_data.destination = data;
             }
@@ -346,9 +347,9 @@ var Relationship = function () {
         }
     }, {
         key: 'add_vab',
-        value: function add_vab(data, x, y) {
+        value: function add_vab(data) {
             var vab = new VAB(data);
-            vab.position = {x: x || 50, y: y || 50};
+            vab.position = { x: 50, y: 50 };
             this.vabs.push(vab);
             vab.$element.appendTo(this.$element);
             vab.$element.on('mousedown', this.process_mouse_down_listener);
@@ -376,6 +377,10 @@ var Relationship = function () {
             if (Relationship._is_transput_process(event.target) && this.connection_creation_data.destination || Relationship._is_transput_element(event.target) && this.connection_creation_data.source) {
                 this.set_connection_creation_data_by_transput(event.target);
                 this.patch.push(this.connection_creation_data);
+                if (this.patch_change_callback) {
+                    var patch = this.patch;
+                    this.patch_change_callback(patch);
+                }
             } else {
                 console.log('invalidate connection');
             }
@@ -391,7 +396,22 @@ var Relationship = function () {
         key: 'handler_document_patch_remove',
         value: function handler_document_patch_remove(event, patch_index) {
             this.patch.splice(patch_index, 1);
+            if (this.patch_change_callback) {
+                var patch = this.patch;
+                this.patch_change_callback(patch);
+            }
             this.connections_canvas.draw(this.patch);
+        }
+    }, {
+        key: 'add_patch',
+        value: function add_patch(patch) {
+            this.patch = this.patch.concat(patch);
+            this.connections_canvas.draw(this.patch);
+        }
+    }, {
+        key: 'set_patch_change_callback',
+        value: function set_patch_change_callback(callback) {
+            this.patch_change_callback = callback;
         }
     }], [{
         key: '_is_transput',
