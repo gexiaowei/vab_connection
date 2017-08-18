@@ -11,7 +11,8 @@ const $ = require('jquery');
 class VAB {
     constructor(data, range) {
         this.init(data);
-        this.range = range
+        this.data = data;
+        this.range = range;
     }
 
     init(data) {
@@ -52,6 +53,10 @@ class VAB {
         });
     }
 
+    get position() {
+        return this._position;
+    }
+
     handler_header_mouse_down() {
         $(document).on('mousemove', this.document_mouse_move_listener);
         $(document).on('mouseup', this.document_mouse_up_listener);
@@ -65,8 +70,6 @@ class VAB {
             x: this._position.x + moveX,
             y: this._position.y + moveY
         };
-
-        console.log(this._position);
 
         $(document).trigger('vab_move', event);
     }

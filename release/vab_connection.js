@@ -35,6 +35,7 @@ var VAB = function () {
         _classCallCheck(this, VAB);
 
         this.init(data);
+        this.data = data;
         this.range = range;
     }
 
@@ -81,6 +82,7 @@ var VAB = function () {
                 x: this._position.x + moveX,
                 y: this._position.y + moveY
             };
+
             $(document).trigger('vab_move', event);
         }
     }, {
@@ -98,17 +100,19 @@ var VAB = function () {
             var x = Math.min(Math.max(this.range.x, position.x), this.range.x + this.range.width - width);
             var y = Math.min(Math.max(this.range.y, position.y), this.range.y + this.range.height - height);
 
-            this._position = {x: x, y: y};
+            this._position = { x: x, y: y };
             this.$element.css({
                 'left': this._position.x,
                 'top': this._position.y
             });
+        },
+        get: function get() {
+            return this._position;
         }
     }]);
 
     return VAB;
 }();
-
 var ConnectionsCanvas = function () {
     function ConnectionsCanvas() {
         _classCallCheck(this, ConnectionsCanvas);
@@ -329,13 +333,13 @@ var Relationship = function () {
     _createClass(Relationship, [{
         key: 'clear_connection_creation_data',
         value: function clear_connection_creation_data() {
-            this.connection_creation_data = {source: null, destination: null};
+            this.connection_creation_data = { source: null, destination: null };
             this.connections_canvas.connection_creation_data = null;
         }
     }, {
         key: 'set_connection_creation_data_by_transput',
         value: function set_connection_creation_data_by_transput(transput) {
-            var data = {id: $(event.target).data('compositionId')};
+            var data = { id: $(event.target).data('compositionId') };
             if (Relationship._is_transput_element(transput)) {
                 this.connection_creation_data.destination = data;
             }
@@ -353,7 +357,7 @@ var Relationship = function () {
             var range = arguments[3];
 
             var vab = new VAB(data, range);
-            vab.position = {x: x, y: y};
+            vab.position = { x: x, y: y };
             this.vabs.push(vab);
             vab.$element.appendTo(this.$element);
             vab.$element.on('mousedown', this.process_mouse_down_listener);
@@ -404,6 +408,11 @@ var Relationship = function () {
                 var patch = this.patch;
                 this.patch_change_callback(patch);
             }
+            this.connections_canvas.draw(this.patch);
+        }
+    }, {
+        key: 'reset_canvas',
+        value: function reset_canvas() {
             this.connections_canvas.draw(this.patch);
         }
     }, {

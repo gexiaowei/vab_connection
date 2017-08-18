@@ -94,6 +94,10 @@ class Relationship {
         this.connections_canvas.draw(this.patch);
     }
 
+    reset_canvas() {
+        this.connections_canvas.draw(this.patch);
+    }
+
     add_patch(patch) {
         this.patch = this.patch.concat(patch);
         this.connections_canvas.draw(this.patch);
