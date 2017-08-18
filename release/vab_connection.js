@@ -31,11 +31,11 @@ function _classCallCheck(instance, Constructor) {
 }
 
 var VAB = function () {
-    function VAB(data, offset) {
+    function VAB(data, range) {
         _classCallCheck(this, VAB);
 
         this.init(data);
-        this.offset = offset;
+        this.range = range;
     }
 
     _createClass(VAB, [{
@@ -82,6 +82,8 @@ var VAB = function () {
                 y: this._position.y + moveY
             };
 
+            console.log(this._position);
+
             $(document).trigger('vab_move', event);
         }
     }, {
@@ -93,16 +95,17 @@ var VAB = function () {
     }, {
         key: 'position',
         set: function set(position) {
-            this._position = position;
+            var width = this.$element.width();
+            var height = this.$element.height();
+
+            var x = Math.min(Math.max(this.range.x, position.x), this.range.x + this.range.width - width);
+            var y = Math.min(Math.max(this.range.y, position.y), this.range.y + this.range.height - height);
+
+            this._position = {x: x, y: y};
             this.$element.css({
                 'left': this._position.x,
                 'top': this._position.y
             });
-        }
-    }, {
-        key: 'offset',
-        set: function set(offset) {
-            this._offset = offset;
         }
     }]);
 
@@ -225,7 +228,7 @@ var ConnectionsCanvas = function () {
         key: 'draw',
         value: function draw(patch) {
             var _this = this;
-
+            this.offset = this.$canvas.offset();
             this.clear();
             if (!patch || !patch.length) {
                 return;
@@ -240,7 +243,7 @@ var ConnectionsCanvas = function () {
             this.width = this.$container.outerWidth();
             this.height = this.$container.outerHeight();
             this.offset = this.$canvas.offset();
-            this.$canvas.attr({ width: this.width, height: this.height });
+            this.$canvas.attr({width: this.width, height: this.height});
         }
     }, {
         key: 'clear',
@@ -251,7 +254,7 @@ var ConnectionsCanvas = function () {
     }, {
         key: 'handler_canvas_click',
         value: function handler_canvas_click(event) {
-            var point = new Point(event.pageX - this.$canvas.position().left, event.pageY - this.$canvas.position().top);
+            var point = new Point(event.pageX - this.$canvas.offset().left, event.pageY - this.$canvas.offset().top);
             var index = -1;
             for (var m = 0; m < this.grid.length; m++) {
                 var tmp_grid = this.grid[m];
@@ -329,13 +332,13 @@ var Relationship = function () {
     _createClass(Relationship, [{
         key: 'clear_connection_creation_data',
         value: function clear_connection_creation_data() {
-            this.connection_creation_data = { source: null, destination: null };
+            this.connection_creation_data = {source: null, destination: null};
             this.connections_canvas.connection_creation_data = null;
         }
     }, {
         key: 'set_connection_creation_data_by_transput',
         value: function set_connection_creation_data_by_transput(transput) {
-            var data = { id: $(event.target).data('compositionId') };
+            var data = {id: $(event.target).data('compositionId')};
             if (Relationship._is_transput_element(transput)) {
                 this.connection_creation_data.destination = data;
             }
@@ -348,8 +351,12 @@ var Relationship = function () {
     }, {
         key: 'add_vab',
         value: function add_vab(data) {
-            var vab = new VAB(data);
-            vab.position = { x: 50, y: 50 };
+            var x = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+            var y = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+            var range = arguments[3];
+
+            var vab = new VAB(data, range);
+            vab.position = {x: x, y: y};
             this.vabs.push(vab);
             vab.$element.appendTo(this.$element);
             vab.$element.on('mousedown', this.process_mouse_down_listener);

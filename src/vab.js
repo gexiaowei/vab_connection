@@ -9,9 +9,9 @@
 const $ = require('jquery');
 
 class VAB {
-    constructor(data, offset) {
+    constructor(data, range) {
         this.init(data);
-        this.offset = offset;
+        this.range = range
     }
 
     init(data) {
@@ -39,15 +39,17 @@ class VAB {
     }
 
     set position(position) {
-        this._position = position;
+        let width = this.$element.width();
+        let height = this.$element.height();
+
+        let x = Math.min(Math.max(this.range.x, position.x), this.range.x + this.range.width - width);
+        let y = Math.min(Math.max(this.range.y, position.y), this.range.y + this.range.height - height);
+
+        this._position = {x, y};
         this.$element.css({
             'left': this._position.x,
             'top': this._position.y
         });
-    }
-
-    set offset(offset) {
-        this._offset = offset
     }
 
     handler_header_mouse_down() {
@@ -63,6 +65,8 @@ class VAB {
             x: this._position.x + moveX,
             y: this._position.y + moveY
         };
+
+        console.log(this._position);
 
         $(document).trigger('vab_move', event);
     }

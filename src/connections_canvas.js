@@ -110,6 +110,7 @@ class ConnectionsCanvas {
     }
 
     draw(patch) {
+        this.offset = this.$canvas.offset();
         this.clear();
         if (!patch || !patch.length) {
             return;

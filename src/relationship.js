@@ -43,9 +43,9 @@ class Relationship {
         this.connections_canvas.connection_creation_data = this.connection_creation_data;
     }
 
-    add_vab(data) {
-        let vab = new VAB(data);
-        vab.position = {x: 50, y: 50};
+    add_vab(data, x = 0, y = 0, range) {
+        let vab = new VAB(data, range);
+        vab.position = {x, y};
         this.vabs.push(vab);
         vab.$element.appendTo(this.$element);
         vab.$element.on('mousedown', this.process_mouse_down_listener);
