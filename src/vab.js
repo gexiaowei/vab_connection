@@ -33,10 +33,15 @@ class VAB {
         this.$body.css('height', Math.max(data.elements.length, data.process.length) * 30 + 4);
         this.$body.appendTo(this.$element);
 
+        this.$foot = $('<div class="foot"><button class="btn btn-danger btn-xs waves-effect btn-block delete">DELETE</button></div>')
+        this.$foot.appendTo(this.$element);
+
         this.header_mouse_down_listener = this.handler_header_mouse_down.bind(this);
         this.document_mouse_move_listener = this.handler_document_mouse_move.bind(this);
         this.document_mouse_up_listener = this.handler_document_mouse_up.bind(this);
+        this.foot_delete_click_listener = this.handler_foot_delete_click.bind(this);
         this.$header.on('mousedown', this.header_mouse_down_listener);
+        this.$foot.find('.delete').on('click', this.foot_delete_click_listener);
     }
 
     set position(position) {
@@ -77,6 +82,13 @@ class VAB {
     handler_document_mouse_up() {
         $(document).off('mousemove', this.document_mouse_move_listener);
         $(document).off('mouseup', this.document_mouse_up_listener);
+    }
+
+    handler_foot_delete_click() {
+        if (this.check_vab_deleteable && this.check_vab_deleteable()) {
+            this.$element.remove();
+            $(document).trigger('vab_remove', {vab_id: this.data['id']})
+        }
     }
 }
 
