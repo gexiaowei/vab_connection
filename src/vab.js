@@ -15,7 +15,7 @@ class VAB {
     }
 
     init(data) {
-        this.$element = $('<div class="vab"></div>');
+        this.$element = $(`<div class="vab" data-level-id="${data['level']}"></div>`);
         let $header_container = $('<div class="header-container grid"><div class="element grid-cell" data-composition-id="vab#element#' + data['id'] + '">&nbsp;</div><div class="header grid-cell none"></div><div class="process grid-cell" data-composition-id="vab#process#' + data['id'] + '">&nbsp;</div></div>');
         this.$header = $header_container.find('.header');
         this.$header.text(data['name']);

@@ -43,7 +43,7 @@ var VAB = function () {
         value: function init(data) {
             var _this = this;
 
-            this.$element = $('<div class="vab"></div>');
+            this.$element = $('<div class="vab" data-level-id="' + data['level'] + '"></div>');
             var $header_container = $('<div class="header-container grid"><div class="element grid-cell" data-composition-id="vab#element#' + data['id'] + '">&nbsp;</div><div class="header grid-cell none"></div><div class="process grid-cell" data-composition-id="vab#process#' + data['id'] + '">&nbsp;</div></div>');
             this.$header = $header_container.find('.header');
             this.$header.text(data['name']);
@@ -81,9 +81,6 @@ var VAB = function () {
                 x: this._position.x + moveX,
                 y: this._position.y + moveY
             };
-
-            console.log(this._position);
-
             $(document).trigger('vab_move', event);
         }
     }, {
