@@ -18,8 +18,10 @@ class Relationship {
         this.document_mouse_move_listener = this.handler_document_mouse_move.bind(this);
         this.document_mouse_up_listener = this.handler_document_mouse_up.bind(this);
         this.document_vab_move_listener = this.handler_document_vab_move.bind(this);
+        this.document_vab_remove_listener = this.handler_document_vab_remove.bind(this);
         this.document_patch_remove_listener = this.handler_document_patch_remove.bind(this);
         $(document).on('vab_move', this.document_vab_move_listener);
+        $(document).on('vab_remove', this.document_vab_remove_listener);
         $(document).on('patch_remove', this.document_patch_remove_listener);
         this.vabs = [];
         this.patch = [];
@@ -82,6 +84,34 @@ class Relationship {
     }
 
     handler_document_vab_move() {
+        this.connections_canvas.draw(this.patch);
+    }
+
+    handler_document_vab_remove(event, data) {
+        let vab_id = data['vab_id'];
+        let current_vab = this.vabs.filter(vab => vab['data']['id'] === vab_id)[0];
+        if (!current_vab) {
+            return;
+        }
+
+        let vab_data = current_vab['data'];
+        let condition = [`vab#process#${vab_data['id']}`, `vab#element#${vab_data['id']}`].concat(vab_data.elements.map(item => item['id'])).concat(vab_data.process.map(item => item['id']));
+
+        let tmp_patch_set = new Set(this.patch);
+        tmp_patch_set.forEach(patch => {
+            if (condition.indexOf(patch['source']['id']) !== -1 || condition.indexOf(patch['destination']['id']) !== -1) {
+                tmp_patch_set.delete(patch);
+            }
+        });
+
+        this.patch = Array.from(tmp_patch_set);
+        if (this.patch_change_callback) {
+            let patch = this.patch;
+            this.patch_change_callback(patch);
+        }
+        let tmp_vabs_set = new Set(this.vabs);
+        tmp_vabs_set.delete(current_vab);
+        this.vabs = Array.from(tmp_vabs_set);
         this.connections_canvas.draw(this.patch);
     }
 

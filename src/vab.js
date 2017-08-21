@@ -16,7 +16,7 @@ class VAB {
     }
 
     init(data) {
-        this.$element = $(`<div class="vab" data-level-id="${data['level']}"></div>`);
+        this.$element = $(`<div class="vab" data-vab-id="${data['id']}" data-level-id="${data['level']}"></div>`);
         let $header_container = $('<div class="header-container grid"><div class="element grid-cell" data-composition-id="vab#element#' + data['id'] + '">&nbsp;</div><div class="header grid-cell none"></div><div class="process grid-cell" data-composition-id="vab#process#' + data['id'] + '">&nbsp;</div></div>');
         this.$header = $header_container.find('.header');
         this.$header.text(data['name']);
@@ -85,10 +85,8 @@ class VAB {
     }
 
     handler_foot_delete_click() {
-        if (this.check_vab_deleteable && this.check_vab_deleteable()) {
-            this.$element.remove();
-            $(document).trigger('vab_remove', {vab_id: this.data['id']})
-        }
+        this.$element.remove();
+        $(document).trigger('vab_remove', {vab_id: this.data['id']})
     }
 }
 

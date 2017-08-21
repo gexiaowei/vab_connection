@@ -44,7 +44,7 @@ var VAB = function () {
         value: function init(data) {
             var _this = this;
 
-            this.$element = $('<div class="vab" data-level-id="' + data['level'] + '"></div>');
+            this.$element = $('<div class="vab" data-vab-id="' + data['id'] + '" data-level-id="' + data['level'] + '"></div>');
             var $header_container = $('<div class="header-container grid"><div class="element grid-cell" data-composition-id="vab#element#' + data['id'] + '">&nbsp;</div><div class="header grid-cell none"></div><div class="process grid-cell" data-composition-id="vab#process#' + data['id'] + '">&nbsp;</div></div>');
             this.$header = $header_container.find('.header');
             this.$header.text(data['name']);
@@ -61,10 +61,15 @@ var VAB = function () {
             this.$body.css('height', Math.max(data.elements.length, data.process.length) * 30 + 4);
             this.$body.appendTo(this.$element);
 
+            this.$foot = $('<div class="foot"><button class="btn btn-danger btn-xs waves-effect btn-block delete">DELETE</button></div>');
+            this.$foot.appendTo(this.$element);
+
             this.header_mouse_down_listener = this.handler_header_mouse_down.bind(this);
             this.document_mouse_move_listener = this.handler_document_mouse_move.bind(this);
             this.document_mouse_up_listener = this.handler_document_mouse_up.bind(this);
+            this.foot_delete_click_listener = this.handler_foot_delete_click.bind(this);
             this.$header.on('mousedown', this.header_mouse_down_listener);
+            this.$foot.find('.delete').on('click', this.foot_delete_click_listener);
         }
     }, {
         key: 'handler_header_mouse_down',
@@ -92,6 +97,12 @@ var VAB = function () {
             $(document).off('mouseup', this.document_mouse_up_listener);
         }
     }, {
+        key: 'handler_foot_delete_click',
+        value: function handler_foot_delete_click() {
+            this.$element.remove();
+            $(document).trigger('vab_remove', { vab_id: this.data['id'] });
+        }
+    }, {
         key: 'position',
         set: function set(position) {
             var width = this.$element.width();
@@ -113,6 +124,7 @@ var VAB = function () {
 
     return VAB;
 }();
+
 var ConnectionsCanvas = function () {
     function ConnectionsCanvas() {
         _classCallCheck(this, ConnectionsCanvas);
@@ -322,8 +334,10 @@ var Relationship = function () {
         this.document_mouse_move_listener = this.handler_document_mouse_move.bind(this);
         this.document_mouse_up_listener = this.handler_document_mouse_up.bind(this);
         this.document_vab_move_listener = this.handler_document_vab_move.bind(this);
+        this.document_vab_remove_listener = this.handler_document_vab_remove.bind(this);
         this.document_patch_remove_listener = this.handler_document_patch_remove.bind(this);
         $(document).on('vab_move', this.document_vab_move_listener);
+        $(document).on('vab_remove', this.document_vab_remove_listener);
         $(document).on('patch_remove', this.document_patch_remove_listener);
         this.vabs = [];
         this.patch = [];
@@ -398,6 +412,41 @@ var Relationship = function () {
     }, {
         key: 'handler_document_vab_move',
         value: function handler_document_vab_move() {
+            this.connections_canvas.draw(this.patch);
+        }
+    }, {
+        key: 'handler_document_vab_remove',
+        value: function handler_document_vab_remove(event, data) {
+            var vab_id = data['vab_id'];
+            var current_vab = this.vabs.filter(function (vab) {
+                return vab['data']['id'] === vab_id;
+            })[0];
+            if (!current_vab) {
+                return;
+            }
+
+            var vab_data = current_vab['data'];
+            var condition = ['vab#process#' + vab_data['id'], 'vab#element#' + vab_data['id']].concat(vab_data.elements.map(function (item) {
+                return item['id'];
+            })).concat(vab_data.process.map(function (item) {
+                return item['id'];
+            }));
+
+            var tmp_patch_set = new Set(this.patch);
+            tmp_patch_set.forEach(function (patch) {
+                if (condition.indexOf(patch['source']['id']) !== -1 || condition.indexOf(patch['destination']['id']) !== -1) {
+                    tmp_patch_set.delete(patch);
+                }
+            });
+
+            this.patch = Array.from(tmp_patch_set);
+            if (this.patch_change_callback) {
+                var patch = this.patch;
+                this.patch_change_callback(patch);
+            }
+            var tmp_vabs_set = new Set(this.vabs);
+            tmp_vabs_set.delete(current_vab);
+            this.vabs = Array.from(tmp_vabs_set);
             this.connections_canvas.draw(this.patch);
         }
     }, {
